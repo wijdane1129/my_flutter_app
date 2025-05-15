@@ -98,20 +98,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     try {
       final dbHelper = DatabaseHelper();
 
-      // Vérifier si la table existe
-      final tableExists = await dbHelper.tableExists('users');
-      if (!tableExists) {
-        throw Exception('La table users n\'existe pas');
-      }
-
-      // Vérifier si l'email existe déjà
-      final existingUser = await dbHelper.getUserByEmail(
-        _emailController.text.trim(),
-      );
-      if (existingUser != null) {
-        throw Exception('Cet email est déjà utilisé');
-      }
-
       final newUser = UserModel(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
@@ -119,21 +105,22 @@ class _RegisterScreenState extends State<RegisterScreen>
       );
 
       final userId = await dbHelper.insertUser(newUser);
-      if (userId <= 0) {
-        throw Exception('Erreur lors de l\'insertion');
-      }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Inscription réussie!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pushReplacementNamed(context, '/home');
+      if (userId > 0) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Inscription réussie! Veuillez vous connecter.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Navigate back to login screen instead of home
+          Navigator.pop(context);
+        }
+      } else {
+        throw Exception('Erreur lors de l\'inscription');
       }
     } catch (e) {
-      debugPrint('Erreur d\'inscription: $e');
       if (mounted) {
         showDialog(
           context: context,
