@@ -170,4 +170,32 @@ class DatabaseHelper {
       return null;
     }
   }
+
+  Future<void> clearCurrentUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_currentUserKey);
+      debugPrint('Current user cleared from preferences');
+    } catch (e) {
+      debugPrint('Error clearing current user: $e');
+      rethrow;
+    }
+  }
+
+  Future<bool> updateUser(UserModel user) async {
+    final Database db = await database;
+    try {
+      final result = await db.update(
+        'users',
+        user.toJson(),
+        where: 'id = ?',
+        whereArgs: [user.id],
+      );
+      debugPrint('User updated successfully: ${user.email}');
+      return result > 0;
+    } catch (e) {
+      debugPrint('Error updating user: $e');
+      return false;
+    }
+  }
 }
