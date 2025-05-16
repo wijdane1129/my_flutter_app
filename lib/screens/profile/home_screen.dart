@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const Center(child: Text('Activités')),
     const Center(child: Text('Nutrition')),
     const Center(child: Text('Objectifs')),
-    const ProfileScreen(), // Replace the placeholder with actual ProfileScreen
+    ProfileScreen(), // Replace the placeholder with actual ProfileScreen
   ];
 
   void _onItemTapped(int index) {

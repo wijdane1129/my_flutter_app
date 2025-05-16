@@ -12,6 +12,7 @@ class UserModel {
   final double? height;
   final int? age;
   final String? gender;
+  final String? profileImagePath; // Add this field
 
   const UserModel({
     this.id,
@@ -22,6 +23,7 @@ class UserModel {
     this.height,
     this.age,
     this.gender,
+    this.profileImagePath, // Add this parameter
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

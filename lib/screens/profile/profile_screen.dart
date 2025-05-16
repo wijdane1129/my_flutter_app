@@ -1,26 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/user_model.dart';
 import '../../services/database_helper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'edit_profile_screen.dart';
+import '../../bloc/profile/profile_bloc.dart'; // Updated import path
+import '../../bloc/profile/profile_event.dart'; // Add this if events are in separate file
+import '../../bloc/profile/profile_state.dart'; // Add this if states are in separate file
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
-
+class ProfileScreen extends StatelessWidget {
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create:
+          (context) =>
+              ProfileBloc(databaseHelper: DatabaseHelper())..add(LoadProfile()),
+      child: BlocBuilder<ProfileBloc, ProfileState>(
+        builder: (context, state) {
+          if (state is ProfileLoading) {
+            return Center(child: CircularProgressIndicator());
+          } else if (state is ProfileLoaded) {
+            return _ProfileContent(user: state.user);
+          } else if (state is ProfileError) {
+            return Center(child: Text(state.message));
+          }
+          return const Center(child: Text('Something went wrong'));
+        },
+      ),
+    );
+  }
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  UserModel? _user;
-  bool _isLoading = true;
+class _ProfileContent extends StatefulWidget {
+  final UserModel user;
+
+  const _ProfileContent({required this.user});
+
+  @override
+  State<_ProfileContent> createState() => _ProfileContentState();
+}
+
+class _ProfileContentState extends State<_ProfileContent> {
   String? _profileImagePath;
 
   @override
   void initState() {
     super.initState();
-    _loadUserProfile();
+    // Load the profile image path from the user object if available
+    _profileImagePath = widget.user.profileImagePath;
   }
 
   String _calculateBMI(double weight, double height) {
@@ -40,11 +68,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-    if (image != null) {
+    if (image != null && mounted) {
       setState(() {
         _profileImagePath = image.path;
       });
-      // TODO: Save image path to database
+
+      // Save image path to database
+      final dbHelper = DatabaseHelper();
+      await dbHelper.saveProfileImage(widget.user.id!, image.path);
+
+      // Refresh profile
+      if (mounted) {
+        context.read<ProfileBloc>().add(LoadProfile());
+      }
     }
   }
 
@@ -56,54 +92,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _loadUserProfile() async {
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final dbHelper = DatabaseHelper();
-      final user = await dbHelper.getCurrentUser();
-
-      if (mounted) {
-        setState(() {
-          _user = user;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erreur lors du chargement du profil'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_user == null) {
-      return const Center(child: Text('No profile found'));
-    }
-
     // Calculate BMI if weight and height are available
     String? bmiText;
     String? bmiCategory;
-    if (_user!.weight != null && _user!.height != null) {
-      final bmi = double.parse(_calculateBMI(_user!.weight!, _user!.height!));
+    if (widget.user.weight != null && widget.user.height != null) {
+      final bmi = double.parse(
+        _calculateBMI(widget.user.weight!, widget.user.height!),
+      );
       bmiText = bmi.toStringAsFixed(1);
       bmiCategory = _getBMICategory(bmi);
     }
@@ -127,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child:
                       _profileImagePath == null
                           ? Text(
-                            _user!.name.substring(0, 1).toUpperCase(),
+                            widget.user.name.substring(0, 1).toUpperCase(),
                             style: const TextStyle(
                               fontSize: 40,
                               color: Colors.white,
@@ -149,9 +146,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          Text(_user!.name, style: Theme.of(context).textTheme.headlineSmall),
+          Text(
+            widget.user.name,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           const SizedBox(height: 8),
-          Text(_user!.email, style: Theme.of(context).textTheme.bodyLarge),
+          Text(widget.user.email, style: Theme.of(context).textTheme.bodyLarge),
           const SizedBox(height: 24),
           _buildInfoCard(
             title: 'Informations personnelles',
@@ -159,18 +159,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildInfoItem(
                 Icons.height,
                 'Taille',
-                '${_user?.height ?? 0} cm',
+                '${widget.user.height} cm',
               ),
               _buildInfoItem(
                 Icons.monitor_weight,
                 'Poids',
-                '${_user?.weight ?? 0} kg',
+                '${widget.user.weight} kg',
               ),
-              _buildInfoItem(Icons.cake, 'Âge', '${_user?.age ?? 0} ans'),
+              _buildInfoItem(Icons.cake, 'Âge', '${widget.user.age} ans'),
               _buildInfoItem(
                 Icons.person_outline,
                 'Genre',
-                _user?.gender ?? 'Non spécifié',
+                widget.user.gender ?? 'Non spécifié',
               ),
             ],
           ),
@@ -229,12 +229,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               final result = await Navigator.push<bool>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditProfileScreen(user: _user!),
+                  builder: (context) => EditProfileScreen(user: widget.user),
                 ),
               );
 
               if (result == true) {
-                _loadUserProfile(); // Refresh profile after editing
+                // Refresh profile after editing
+                BlocProvider.of<ProfileBloc>(context).add(LoadProfile());
               }
             },
             icon: const Icon(Icons.edit),

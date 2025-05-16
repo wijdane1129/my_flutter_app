@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../models/user_model.dart';
-import '../../services/database_helper.dart';
+import '../../bloc/profile/profile_bloc.dart';
+import '../../bloc/profile/profile_event.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final UserModel user;
 
-  const EditProfileScreen({super.key, required this.user});
+  const EditProfileScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -60,18 +62,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         weight: double.tryParse(_weightController.text),
         age: int.tryParse(_ageController.text),
         gender: _selectedGender.isEmpty ? null : _selectedGender,
+        profileImagePath: widget.user.profileImagePath,
       );
 
-      final dbHelper = DatabaseHelper();
-      await dbHelper.updateUser(updatedUser);
-
+      context.read<ProfileBloc>().add(UpdateProfile(updatedUser));
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profil mis à jour avec succès'),
-            backgroundColor: Colors.green,
-          ),
-        );
         Navigator.pop(context, true);
       }
     } catch (e) {

@@ -198,4 +198,21 @@ class DatabaseHelper {
       return false;
     }
   }
+
+  Future<bool> saveProfileImage(int userId, String imagePath) async {
+    final Database db = await database;
+    try {
+      final result = await db.update(
+        'users',
+        {'profile_image_path': imagePath},
+        where: 'id = ?',
+        whereArgs: [userId],
+      );
+      debugPrint('Profile image saved for user $userId');
+      return result > 0;
+    } catch (e) {
+      debugPrint('Error saving profile image: $e');
+      return false;
+    }
+  }
 }
