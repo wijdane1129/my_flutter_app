@@ -4,6 +4,7 @@ import 'package:path/path.dart';
 import '../models/user_model.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -129,6 +130,44 @@ class DatabaseHelper {
     } catch (e) {
       debugPrint('Erreur lors de la vérification de la table: $e');
       return false;
+    }
+  }
+
+  static const String _currentUserKey = 'current_user_id';
+
+  Future<void> setCurrentUser(int userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_currentUserKey, userId);
+  }
+
+  Future<UserModel?> getCurrentUser() async {
+    final Database db = await database;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final currentUserId = prefs.getInt(_currentUserKey);
+
+      if (currentUserId == null) {
+        debugPrint('No current user ID found in preferences');
+        return null;
+      }
+
+      final List<Map<String, dynamic>> result = await db.query(
+        'users',
+        where: 'id = ?',
+        whereArgs: [currentUserId],
+        limit: 1,
+      );
+
+      if (result.isNotEmpty) {
+        debugPrint('Current user found: ${result.first['email']}');
+        return UserModel.fromJson(result.first);
+      }
+
+      debugPrint('No user found with ID: $currentUserId');
+      return null;
+    } catch (e) {
+      debugPrint('Error getting current user: $e');
+      return null;
     }
   }
 }

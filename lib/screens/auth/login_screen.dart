@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/database_helper.dart';
- // Keep this import for type safety
+// Keep this import for type safety
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -74,6 +74,8 @@ class _LoginScreenState extends State<LoginScreen>
 
       if (mounted) {
         if (user != null) {
+          // Store the current user ID after successful login
+          await dbHelper.setCurrentUser(user.id!);
           Navigator.pushReplacementNamed(context, '/home');
         } else {
           showDialog(

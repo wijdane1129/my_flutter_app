@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,11 +11,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _screens = [
-    Center(child: Text('Activités')),
-    Center(child: Text('Nutrition')),
-    Center(child: Text('Objectifs')),
-    Center(child: Text('Profil')),
+  final List<Widget> _screens = [
+    const Center(child: Text('Activités')),
+    const Center(child: Text('Nutrition')),
+    const Center(child: Text('Objectifs')),
+    const ProfileScreen(), // Replace the placeholder with actual ProfileScreen
   ];
 
   void _onItemTapped(int index) {
