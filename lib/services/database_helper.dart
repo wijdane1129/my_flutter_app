@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import '../models/user_model.dart';
+import '../models/activity_data_model.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +33,7 @@ class DatabaseHelper {
   }
 
   Future<void> _createDb(Database db, int version) async {
-    debugPrint('Création de la base de données...');
+    debugPrint('Creating database...');
     try {
       await db.execute('''
         CREATE TABLE users(
@@ -47,9 +48,22 @@ class DatabaseHelper {
           profileImagePath TEXT
         )
       ''');
-      debugPrint('Table users créée avec succès');
+      
+      await db.execute('''
+        CREATE TABLE activity_data(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          date TEXT NOT NULL UNIQUE,
+          steps INTEGER NOT NULL,
+          distance REAL NOT NULL,
+          calories_burned REAL NOT NULL,
+          heart_rate INTEGER NOT NULL,
+          sleep_hours REAL NOT NULL
+        )
+      ''');
+      
+      debugPrint('Tables created successfully');
     } catch (e) {
-      debugPrint('Erreur lors de la création de la table users: $e');
+      debugPrint('Error creating tables: $e');
       rethrow;
     }
   }
@@ -215,5 +229,66 @@ class DatabaseHelper {
       debugPrint('Error saving profile image: $e');
       return false;
     }
+  }
+
+  Future<int> insertActivityData(ActivityDataModel data) async {
+    final Database db = await database;
+    return await db.insert('activity_data', data.toJson());
+  }
+
+  Future<int> updateActivityData(ActivityDataModel data) async {
+    final Database db = await database;
+    return await db.update(
+      'activity_data',
+      data.toJson(),
+      where: 'date = ?',
+      whereArgs: [data.date.toIso8601String()],
+    );
+  }
+
+  Future<int> insertOrUpdateActivityData(ActivityDataModel data) async {
+    try {
+      return await insertActivityData(data);
+    } on DatabaseException catch (e) {
+       if (e.isUniqueConstraintError()) {
+        return await updateActivityData(data);
+      }
+      rethrow;
+    }
+  }
+
+  Future<ActivityDataModel?> getActivityDataByDate(DateTime date) async {
+    final Database db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'activity_data',
+      where: 'date = ?',
+      whereArgs: [date.toIso8601String()],
+    );
+    
+    if (maps.isNotEmpty) {
+      return ActivityDataModel.fromJson(maps.first);
+    }
+    return null;
+  }
+
+  Future<List<ActivityDataModel>> getActivityDataInRange(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    final Database db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'activity_data',
+      where: 'date BETWEEN ? AND ?',
+      whereArgs: [startDate.toIso8601String(), endDate.toIso8601String()],
+      orderBy: 'date ASC',
+    );
+    
+    return maps.map((map) => ActivityDataModel.fromJson(map)).toList();
+  }
+}
+
+extension DatabaseExceptionExtension on DatabaseException {
+  bool isUniqueConstraintError() {
+    return toString().contains('UNIQUE constraint failed');
   }
 }
