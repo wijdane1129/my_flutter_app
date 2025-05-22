@@ -5,21 +5,21 @@ import '../../services/database_helper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'edit_profile_screen.dart';
-import '../../bloc/profile/profile_bloc.dart'; // Updated import path
-import '../../bloc/profile/profile_event.dart'; // Add this if events are in separate file
-import '../../bloc/profile/profile_state.dart'; // Add this if states are in separate file
+import '../../bloc/profile/profile_bloc.dart';
+import '../../bloc/profile/profile_event.dart';
+import '../../bloc/profile/profile_state.dart';
 
 class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) =>
-              ProfileBloc(databaseHelper: DatabaseHelper())..add(LoadProfile()),
+      create: (context) => ProfileBloc(databaseHelper: DatabaseHelper())..add(LoadProfile()),
       child: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
           if (state is ProfileLoading) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (state is ProfileLoaded) {
             return _ProfileContent(user: state.user);
           } else if (state is ProfileError) {
@@ -47,7 +47,6 @@ class _ProfileContentState extends State<_ProfileContent> {
   @override
   void initState() {
     super.initState();
-    // Load the profile image path from the user object if available
     _profileImagePath = widget.user.profileImagePath;
   }
 
@@ -159,14 +158,18 @@ class _ProfileContentState extends State<_ProfileContent> {
               _buildInfoItem(
                 Icons.height,
                 'Taille',
-                '${widget.user.height} cm',
+                widget.user.height != null ? '${widget.user.height} cm' : 'Non spécifié',
               ),
               _buildInfoItem(
                 Icons.monitor_weight,
                 'Poids',
-                '${widget.user.weight} kg',
+                widget.user.weight != null ? '${widget.user.weight} kg' : 'Non spécifié',
               ),
-              _buildInfoItem(Icons.cake, 'Âge', '${widget.user.age} ans'),
+              _buildInfoItem(
+                Icons.cake, 
+                'Âge', 
+                widget.user.age != null ? '${widget.user.age} ans' : 'Non spécifié'
+              ),
               _buildInfoItem(
                 Icons.person_outline,
                 'Genre',
@@ -226,6 +229,7 @@ class _ProfileContentState extends State<_ProfileContent> {
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () async {
+              // Navigate to edit profile screen without BlocProvider
               final result = await Navigator.push<bool>(
                 context,
                 MaterialPageRoute(
@@ -233,9 +237,9 @@ class _ProfileContentState extends State<_ProfileContent> {
                 ),
               );
 
-              if (result == true) {
+              if (result == true && mounted) {
                 // Refresh profile after editing
-                BlocProvider.of<ProfileBloc>(context).add(LoadProfile());
+                context.read<ProfileBloc>().add(LoadProfile());
               }
             },
             icon: const Icon(Icons.edit),

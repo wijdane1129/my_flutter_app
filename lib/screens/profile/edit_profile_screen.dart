@@ -3,6 +3,7 @@ import '../../models/user_model.dart';
 import '../../bloc/profile/profile_bloc.dart';
 import '../../bloc/profile/profile_event.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../services/database_helper.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final UserModel user;
@@ -65,9 +66,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         profileImagePath: widget.user.profileImagePath,
       );
 
-      context.read<ProfileBloc>().add(UpdateProfile(updatedUser));
-      if (mounted) {
+      // Update user in database directly
+      final dbHelper = DatabaseHelper();
+      final success = await dbHelper.updateUser(updatedUser);
+      
+      if (success && mounted) {
+        // Return success to previous screen
         Navigator.pop(context, true);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erreur lors de la mise à jour du profil'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
