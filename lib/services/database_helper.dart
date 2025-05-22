@@ -43,7 +43,8 @@ class DatabaseHelper {
           weight REAL,
           height REAL,
           age INTEGER,
-          gender TEXT
+          gender TEXT,
+          profileImagePath TEXT
         )
       ''');
       debugPrint('Table users créée avec succès');
