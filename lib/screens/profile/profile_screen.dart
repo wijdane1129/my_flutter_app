@@ -10,7 +10,7 @@ import '../../bloc/profile/profile_event.dart';
 import '../../bloc/profile/profile_state.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

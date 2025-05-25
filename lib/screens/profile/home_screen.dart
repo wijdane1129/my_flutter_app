@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'profile_screen.dart';
+import '../activity/activity_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,7 +13,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    const Center(child: Text('Activités')),
+   ActivityScreen(),
     const Center(child: Text('Nutrition')),
     const Center(child: Text('Objectifs')),
     ProfileScreen(), // Replace the placeholder with actual ProfileScreen
