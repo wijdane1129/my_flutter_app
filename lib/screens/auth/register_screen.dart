@@ -89,6 +89,39 @@ class _RegisterScreenState extends State<RegisterScreen>
     return null;
   }
 
+  void _registerUser() async {
+    final user = UserModel(
+      name: _nameController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    try {
+      final result = await DatabaseHelper.instance.insertUser(user);
+      if (result > 0) {
+        debugPrint('Utilisateur inscrit avec succès');
+        Navigator.pop(context); // Retourne à l'écran de connexion
+      } else {
+        throw Exception('Erreur lors de l\'insertion');
+      }
+    } catch (e) {
+      debugPrint('Erreur d\'inscription : $e');
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Erreur d\'inscription'),
+          content: Text(e.toString()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 

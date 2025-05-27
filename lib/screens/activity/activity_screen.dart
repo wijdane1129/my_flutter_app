@@ -3,12 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/activity/activity_bloc.dart';
 import '../../bloc/activity/activity_event.dart';
 import '../../bloc/activity/activity_state.dart';
-import '../../models/exercise_model.dart';
 import 'activity_stats_widget.dart';
-import 'add_exercise_form.dart';
 
 class ActivityScreen extends StatefulWidget {
-  const ActivityScreen({Key? key}) : super(key: key);
+  const ActivityScreen({super.key});
 
   @override
   State<ActivityScreen> createState() => _ActivityScreenState();

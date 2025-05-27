@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'profile_screen.dart';
+import '../nutrition/nutrition_screen.dart';
 import '../activity/activity_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,10 +14,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-   ActivityScreen(),
-    const Center(child: Text('Nutrition')),
-    const Center(child: Text('Objectifs')),
-    ProfileScreen(), // Replace the placeholder with actual ProfileScreen
+    const ActivityScreen(), // Activity tab
+    const NutritionScreen(), // Nutrition tab
+    const Center(child: Text('Objectifs')), // Placeholder for Goals tab
+    const ProfileScreen(), // Profile tab
   ];
 
   void _onItemTapped(int index) {
@@ -30,16 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Fitness App'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications à venir')),
-              );
-            },
-          ),
-        ],
       ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -64,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         onTap: _onItemTapped,
       ),
+     
     );
   }
 }

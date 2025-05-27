@@ -7,12 +7,13 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DatabaseHelper {
-  static final DatabaseHelper _instance = DatabaseHelper._internal();
+  static final DatabaseHelper instance = DatabaseHelper._internal();
   static Database? _database;
 
-  factory DatabaseHelper() => _instance;
-
   DatabaseHelper._internal();
+
+  factory DatabaseHelper() => instance;
+
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -60,6 +61,21 @@ class DatabaseHelper {
         )
       ''');
       
+      await db.execute('''
+        CREATE TABLE meals(
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          calories REAL NOT NULL,
+          proteins REAL NOT NULL,
+          carbs REAL NOT NULL,
+          fats REAL NOT NULL,
+          servingSize REAL NOT NULL,
+          servingUnit TEXT NOT NULL,
+          consumedAt TEXT NOT NULL,
+          isFavorite INTEGER NOT NULL DEFAULT 0
+        )
+      ''');
+      
       debugPrint('Tables created successfully');
     } catch (e) {
       debugPrint('Error creating tables: $e');
@@ -68,15 +84,16 @@ class DatabaseHelper {
   }
 
   Future<int> insertUser(UserModel user) async {
-    final Database db = await database;
     try {
-      debugPrint('Tentative d\'insertion utilisateur: ${user.email}');
-      final result = await db.insert('users', user.toJson());
-      debugPrint('Utilisateur inséré avec succès, ID: $result');
-      return result;
+      final db = await database;
+      return await db.insert(
+        'users',
+        user.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     } catch (e) {
       debugPrint('Erreur lors de l\'insertion utilisateur: $e');
-      return -1;
+      throw Exception('Erreur lors de l\'insertion');
     }
   }
 

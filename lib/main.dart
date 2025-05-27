@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/profile/home_screen.dart';
+import 'screens/nutrition/add_meal_screen.dart';
+import 'screens/nutrition/nutrition_screen.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -48,7 +51,13 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const LoginScreen(),
-      routes: {'/home': (context) => const HomeScreen()},
+      routes: {
+        '/home': (context) => const HomeScreen(),
+        '/add-meal': (context) => const AddMealScreen(),
+        '/nutrition': (context) => const NutritionScreen(),
+        
+        // autres routes...
+      },
     );
   }
 }

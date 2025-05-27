@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../models/user_model.dart';
-import '../../bloc/profile/profile_bloc.dart';
-import '../../bloc/profile/profile_event.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../services/database_helper.dart';
 
 class EditProfileScreen extends StatefulWidget {
