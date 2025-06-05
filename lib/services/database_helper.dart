@@ -63,16 +63,10 @@ class DatabaseHelper {
       
       await db.execute('''
         CREATE TABLE meals(
-          id TEXT PRIMARY KEY,
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL,
           calories REAL NOT NULL,
-          proteins REAL NOT NULL,
-          carbs REAL NOT NULL,
-          fats REAL NOT NULL,
-          servingSize REAL NOT NULL,
-          servingUnit TEXT NOT NULL,
-          consumedAt TEXT NOT NULL,
-          isFavorite INTEGER NOT NULL DEFAULT 0
+          image TEXT
         )
       ''');
       
@@ -301,6 +295,44 @@ class DatabaseHelper {
     
     return maps.map((map) => ActivityDataModel.fromJson(map)).toList();
   }
+
+  Future<List<Map<String, dynamic>>> getMeals() async {
+  try {
+    final db = await database;
+    return await db.query('meals');
+  } catch (e) {
+    debugPrint('Erreur lors de la récupération des repas: $e');
+    throw Exception('Erreur lors de la récupération');
+  }
+}
+
+Future<int> deleteMeal(int id) async {
+  try {
+    final db = await database;
+    return await db.delete(
+      'meals',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  } catch (e) {
+    debugPrint('Erreur lors de la suppression du repas: $e');
+    throw Exception('Erreur lors de la suppression');
+  }
+}
+
+Future<int> insertMeal(Map<String, dynamic> meal) async {
+  try {
+    final db = await database;
+    return await db.insert(
+      'meals',
+      meal,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  } catch (e) {
+    debugPrint('Erreur lors de l\'insertion du repas: $e');
+    throw Exception('Erreur lors de l\'insertion');
+  }
+}
 }
 
 extension DatabaseExceptionExtension on DatabaseException {

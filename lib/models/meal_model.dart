@@ -35,4 +35,22 @@ class MealModel {
   double get totalProteins => proteins * (servingSize / 100);
   double get totalCarbs => carbs * (servingSize / 100);
   double get totalFats => fats * (servingSize / 100);
+
+  factory MealModel.custom({
+    required String name,
+    required double calories,
+    String? imageUrl,
+  }) {
+    return MealModel(
+      id: DateTime.now().toString(),
+      name: name,
+      calories: calories,
+      proteins: 0,
+      carbs: 0,
+      fats: 0,
+      servingSize: 100,
+      servingUnit: 'g',
+      consumedAt: DateTime.now(),
+    );
+  }
 }
