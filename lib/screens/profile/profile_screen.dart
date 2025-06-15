@@ -8,6 +8,7 @@ import 'edit_profile_screen.dart';
 import '../../bloc/profile/profile_bloc.dart';
 import '../../bloc/profile/profile_event.dart';
 import '../../bloc/profile/profile_state.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -15,7 +16,8 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ProfileBloc(databaseHelper: DatabaseHelper())..add(LoadProfile()),
+      create: (context) =>
+          ProfileBloc(databaseHelper: DatabaseHelper())..add(LoadProfile()),
       child: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
           if (state is ProfileLoading) {
@@ -104,172 +106,216 @@ class _ProfileContentState extends State<_ProfileContent> {
       bmiCategory = _getBMICategory(bmi);
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              GestureDetector(
-                onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage:
-                      _profileImagePath != null
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Profile',
+                style: GoogleFonts.poppins(
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+            Center(
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundImage: _profileImagePath != null
                           ? FileImage(File(_profileImagePath!))
                           : null,
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  child:
-                      _profileImagePath == null
+                      backgroundColor: const Color(0xFF6B45CC),
+                      child: _profileImagePath == null
                           ? Text(
-                            widget.user.name.substring(0, 1).toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 40,
-                              color: Colors.white,
-                            ),
-                          )
+                              widget.user.name.substring(0, 1).toUpperCase(),
+                              style: GoogleFonts.poppins(
+                                fontSize: 40,
+                                color: Colors.white,
+                              ),
+                            )
                           : null,
-                ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.camera_alt, color: Colors.white),
+                      onPressed: _pickImage,
+                    ),
+                  ),
+                ],
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  shape: BoxShape.circle,
+            ),
+            const SizedBox(height: 24),
+            Center(
+              child: Text(
+                widget.user.name,
+                style: GoogleFonts.poppins(
+                    fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: Text(
+                widget.user.email,
+                style:
+                    GoogleFonts.poppins(fontSize: 16, color: Colors.grey[700]),
+              ),
+            ),
+            const SizedBox(height: 24),
+            _buildInfoCard(
+              title: 'Personal Information',
+              items: [
+                _buildInfoItem(
+                  Icons.height,
+                  'Height',
+                  widget.user.height != null
+                      ? '${widget.user.height} cm'
+                      : 'Not specified',
                 ),
-                child: IconButton(
-                  icon: const Icon(Icons.camera_alt, color: Colors.white),
-                  onPressed: _pickImage,
+                _buildInfoItem(
+                  Icons.monitor_weight,
+                  'Weight',
+                  widget.user.weight != null
+                      ? '${widget.user.weight} kg'
+                      : 'Not specified',
                 ),
+                _buildInfoItem(
+                  Icons.cake,
+                  'Age',
+                  widget.user.age != null
+                      ? '${widget.user.age} years'
+                      : 'Not specified',
+                ),
+                _buildInfoItem(
+                  Icons.person_outline,
+                  'Gender',
+                  widget.user.gender ?? 'Not specified',
+                ),
+              ],
+            ),
+            if (bmiText != null) ...[
+              const SizedBox(height: 16),
+              _buildInfoCard(
+                title: 'Body Mass Index (BMI)',
+                items: [
+                  _buildInfoItem(
+                    Icons.info_outline,
+                    'BMI',
+                    bmiText,
+                  ),
+                  _buildInfoItem(
+                    Icons.category,
+                    'Category',
+                    bmiCategory!,
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: 24),
-          Text(
-            widget.user.name,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(widget.user.email, style: Theme.of(context).textTheme.bodyLarge),
-          const SizedBox(height: 24),
-          _buildInfoCard(
-            title: 'Informations personnelles',
-            items: [
-              _buildInfoItem(
-                Icons.height,
-                'Taille',
-                widget.user.height != null ? '${widget.user.height} cm' : 'Non spécifié',
-              ),
-              _buildInfoItem(
-                Icons.monitor_weight,
-                'Poids',
-                widget.user.weight != null ? '${widget.user.weight} kg' : 'Non spécifié',
-              ),
-              _buildInfoItem(
-                Icons.cake, 
-                'Âge', 
-                widget.user.age != null ? '${widget.user.age} ans' : 'Non spécifié'
-              ),
-              _buildInfoItem(
-                Icons.person_outline,
-                'Genre',
-                widget.user.gender ?? 'Non spécifié',
-              ),
-            ],
-          ),
-          if (bmiText != null) ...[
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Indice de masse corporelle (IMC)',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'IMC',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Text(
-                              bmiText,
-                              style: Theme.of(context).textTheme.headlineMedium,
-                            ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Catégorie',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Text(
-                              bmiCategory!,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+            const SizedBox(height: 24),
+            Container(
+              height: 55,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF6B45CC),
+                    Color(0xFF8B64E6),
                   ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: ElevatedButton(
+                onPressed: () async {
+                  final result = await Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          EditProfileScreen(user: widget.user),
+                    ),
+                  );
+
+                  if (result == true && mounted) {
+                    context.read<ProfileBloc>().add(LoadProfile());
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  'Edit Profile',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _logout,
+              icon: const Icon(Icons.logout, color: Color(0xFF6B45CC)),
+              label: Text(
+                'Log out',
+                style: GoogleFonts.poppins(
+                  color: const Color(0xFF6B45CC),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+                side: const BorderSide(color: Color(0xFF6B45CC)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
                 ),
               ),
             ),
           ],
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: () async {
-              // Navigate to edit profile screen without BlocProvider
-              final result = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditProfileScreen(user: widget.user),
-                ),
-              );
-
-              if (result == true && mounted) {
-                // Refresh profile after editing
-                context.read<ProfileBloc>().add(LoadProfile());
-              }
-            },
-            icon: const Icon(Icons.edit),
-            label: const Text('Modifier le profil'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-            ),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: _logout,
-            icon: const Icon(Icons.logout),
-            label: const Text('Se déconnecter'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfoCard({required String title, required List<Widget> items}) {
+  Widget _buildInfoCard({
+    required String title,
+    required List<Widget> items,
+  }) {
     return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                  fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             ...items,
           ],
@@ -279,10 +325,31 @@ class _ProfileContentState extends State<_ProfileContent> {
   }
 
   Widget _buildInfoItem(IconData icon, String label, String value) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(label),
-      trailing: Text(value),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.grey[600]),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.poppins(
+                      fontSize: 14, color: Colors.grey[600]),
+                ),
+                Text(
+                  value,
+                  style: GoogleFonts.poppins(
+                      fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

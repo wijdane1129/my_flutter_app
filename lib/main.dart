@@ -3,7 +3,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/profile/home_screen.dart';
 import 'screens/nutrition/add_meal_screen.dart';
 import 'screens/nutrition/nutrition_screen.dart';
-
+import 'package:my_flutter_app/screens/welcome/welcome_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -50,12 +50,14 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoginScreen(),
+      initialRoute: '/welcome',
       routes: {
+        '/welcome': (context) => const WelcomeScreen(),
+        '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
         '/add-meal': (context) => const AddMealScreen(),
         '/nutrition': (context) => const NutritionScreen(),
-        
+
         // autres routes...
       },
     );

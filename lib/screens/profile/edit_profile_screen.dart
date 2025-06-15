@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/user_model.dart';
 import '../../services/database_helper.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final UserModel user;
@@ -66,7 +67,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       // Update user in database directly
       final dbHelper = DatabaseHelper();
       final success = await dbHelper.updateUser(updatedUser);
-      
+
       if (success && mounted) {
         // Return success to previous screen
         Navigator.pop(context, true);
@@ -94,22 +95,56 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Modifier le profil')),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Edit Profile',
+                  style: GoogleFonts.poppins(
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nom',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  labelStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+                  filled: true,
+                  fillColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  hintStyle: GoogleFonts.poppins(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer votre nom';
+                    return 'Please enter your name';
                   }
                   return null;
                 },
@@ -117,16 +152,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _heightController,
-                decoration: const InputDecoration(
-                  labelText: 'Taille (cm)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'Height (cm)',
+                  labelStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+                  filled: true,
+                  fillColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  hintStyle: GoogleFonts.poppins(),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value != null && value.isNotEmpty) {
                     final height = double.tryParse(value);
                     if (height == null || height <= 0) {
-                      return 'Veuillez entrer une taille valide';
+                      return 'Please enter a valid height';
                     }
                   }
                   return null;
@@ -135,16 +191,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _weightController,
-                decoration: const InputDecoration(
-                  labelText: 'Poids (kg)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'Weight (kg)',
+                  labelStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+                  filled: true,
+                  fillColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  hintStyle: GoogleFonts.poppins(),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value != null && value.isNotEmpty) {
                     final weight = double.tryParse(value);
                     if (weight == null || weight <= 0) {
-                      return 'Veuillez entrer un poids valide';
+                      return 'Please enter a valid weight';
                     }
                   }
                   return null;
@@ -153,16 +230,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _ageController,
-                decoration: const InputDecoration(
-                  labelText: 'Âge',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'Age',
+                  labelStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+                  filled: true,
+                  fillColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  hintStyle: GoogleFonts.poppins(),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value != null && value.isNotEmpty) {
                     final age = int.tryParse(value);
                     if (age == null || age <= 0) {
-                      return 'Veuillez entrer un âge valide';
+                      return 'Please enter a valid age';
                     }
                   }
                   return null;
@@ -171,29 +269,90 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedGender.isEmpty ? null : _selectedGender,
-                decoration: const InputDecoration(
-                  labelText: 'Genre',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'Gender',
+                  labelStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+                  filled: true,
+                  fillColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  hintStyle: GoogleFonts.poppins(),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'Homme', child: Text('Homme')),
-                  DropdownMenuItem(value: 'Femme', child: Text('Femme')),
-                  DropdownMenuItem(value: 'Autre', child: Text('Autre')),
+                items: [
+                  DropdownMenuItem(
+                      value: 'Male',
+                      child: Text('Male', style: GoogleFonts.poppins())),
+                  DropdownMenuItem(
+                      value: 'Female',
+                      child: Text('Female', style: GoogleFonts.poppins())),
+                  DropdownMenuItem(
+                      value: 'Other',
+                      child: Text('Other', style: GoogleFonts.poppins())),
                 ],
                 onChanged: (value) {
                   setState(() => _selectedGender = value ?? '');
                 },
+                style: GoogleFonts.poppins(color: Colors.black, fontSize: 16),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _saveProfile,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
+              Container(
+                height: 55,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF6B45CC),
+                      Color(0xFF8B64E6),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-                child:
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : const Text('Enregistrer'),
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text(
+                          'Save',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
               ),
             ],
           ),

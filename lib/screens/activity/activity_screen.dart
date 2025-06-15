@@ -4,6 +4,7 @@ import '../../bloc/activity/activity_bloc.dart';
 import '../../bloc/activity/activity_event.dart';
 import '../../bloc/activity/activity_state.dart';
 import 'activity_stats_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key});
@@ -102,9 +103,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     return BlocProvider(
       create: (context) => ActivityBloc()..add(LoadTodayActivity()),
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Exercices'),
-        ), // Conserve le texte "Exercices" après "Fitness App"
+        backgroundColor: Colors.white,
         body: RefreshIndicator(
           onRefresh: () async {
             context.read<ActivityBloc>().add(SyncHealthData());
@@ -112,10 +111,23 @@ class _ActivityScreenState extends State<ActivityScreen> {
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Activities',
+                      style: GoogleFonts.poppins(
+                        fontSize: 34,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   BlocBuilder<ActivityBloc, ActivityState>(
                     builder: (context, state) {
                       if (state is ActivityLoading) {
@@ -131,17 +143,18 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     },
                   ),
                   const SizedBox(height: 24),
-                  // Section des exercices ajoutés par l'utilisateur
-                  const Text(
+                  Text(
                     'Mes Exercices',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   _buildUserExercises(),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     'Exercices Suggérés',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   _buildSuggestedExercises(),
@@ -171,14 +184,23 @@ class _ActivityScreenState extends State<ActivityScreen> {
         final exercise = userExercises[index];
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8),
+          elevation: 0,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: ListTile(
             leading: SizedBox(
               width: 50,
               height: 50,
               child: Image.asset(exercise['gif'], fit: BoxFit.cover),
             ),
-            title: Text(exercise['name'] ?? ''),
-            subtitle: Text('Durée: ${exercise['duration']} min'),
+            title: Text(
+              exercise['name'] ?? '',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              'Durée: ${exercise['duration']} min',
+              style: GoogleFonts.poppins(color: Colors.grey[600]),
+            ),
             trailing: IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () {
@@ -202,14 +224,21 @@ class _ActivityScreenState extends State<ActivityScreen> {
         final category = categorizedExercises.keys.elementAt(index);
         final exercises = categorizedExercises[category]!;
         return ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          collapsedShape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          backgroundColor: Colors.white,
+          collapsedBackgroundColor: Colors.white,
           title: Text(
             category,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style:
+                GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          children:
-              exercises
-                  .map((exercise) => _buildExerciseCard(exercise))
-                  .toList(),
+          children: exercises
+              .map((exercise) => _buildExerciseCard(exercise))
+              .toList(),
         );
       },
     );
@@ -218,6 +247,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Widget _buildExerciseCard(Map<String, dynamic> exercise) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -225,7 +256,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
             SizedBox(
               width: 100,
               height: 100,
-              child: Image.asset(exercise['gif'], fit: BoxFit.cover),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(exercise['gif'], fit: BoxFit.cover),
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -234,7 +268,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 children: [
                   Text(
                     exercise['name'] ?? '',
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -242,24 +276,39 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Cible: ${exercise['target']}',
-                    style: const TextStyle(color: Colors.grey),
+                    style: GoogleFonts.poppins(color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     exercise['description'] ?? '',
-                    style: const TextStyle(color: Colors.grey),
+                    style: GoogleFonts.poppins(color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Durée: ${exercise['duration']} min',
-                    style: const TextStyle(color: Colors.grey),
+                    style: GoogleFonts.poppins(color: Colors.grey),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: ElevatedButton(
+                      onPressed: () => _addExerciseToUserList(exercise),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6B45CC),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                      ),
+                      child: Text(
+                        'Ajouter',
+                        style: GoogleFonts.poppins(fontSize: 14),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.add_circle, color: Colors.blue),
-              onPressed: () => _addExerciseToUserList(exercise),
             ),
           ],
         ),
