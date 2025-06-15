@@ -1,7 +1,10 @@
+// lib/home_screen.dart (ou où que soit votre fichier)
+
 import 'package:flutter/material.dart';
 import '../nutrition/nutrition_screen.dart';
 import '../activity/activity_screen.dart';
 import '../profile/profile_screen.dart';
+import '../goals/goals_screen.dart'; // Importer le nouvel écran
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,13 +14,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2; // Mettre 2 pour que la page Goals soit la première affichée
 
   final List<Widget> _screens = [
-    const ActivityScreen(), // Activity tab
-    const NutritionScreen(), // Nutrition tab
-    const Center(child: Text('Objectifs')), // Placeholder for Goals tab
-    const ProfileScreen(), // Profile tab
+    const ActivityScreen(), // Index 0
+    const NutritionScreen(), // Index 1
+    const GoalsScreen(), // Index 2 - Remplacer le placeholder
+    const ProfileScreen(), // Index 3
   ];
 
   void _onItemTapped(int index) {
@@ -29,10 +32,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Fitness App'),
+      // L'AppBar est maintenant gérée dans chaque écran individuellement
+      // pour plus de flexibilité (comme le titre "Your Goals")
+      // appBar: AppBar(
+      //   title: const Text('Fitness App'),
+      // ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
       ),
-      body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -45,9 +53,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.track_changes),
-            label: 'Objectifs',
+            label: 'Goals',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person), 
+            label: 'Profil'
+          ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Theme.of(context).colorScheme.primary,
@@ -55,7 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         onTap: _onItemTapped,
       ),
-     
     );
   }
 }

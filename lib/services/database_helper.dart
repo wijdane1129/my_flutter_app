@@ -2,6 +2,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import '../models/user_model.dart';
 import '../models/activity_data_model.dart';
+import '../models/goal_model.dart'; // <-- AJOUT: Importer le modèle de Goal
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,6 +70,18 @@ class DatabaseHelper {
           image TEXT
         )
       ''');
+
+      // --- START: GOALS TABLE ADDITION ---
+      await db.execute('''
+        CREATE TABLE goals (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          description TEXT NOT NULL,
+          imageBytes BLOB,
+          isCompleted INTEGER NOT NULL
+        )
+      ''');
+      // --- END: GOALS TABLE ADDITION ---
       
       debugPrint('Tables created successfully');
     } catch (e) {
@@ -76,6 +89,10 @@ class DatabaseHelper {
       rethrow;
     }
   }
+
+  // ... (votre code existant pour insertUser, getUsers, authenticateUser, etc. reste inchangé)
+  // ...
+  // ...
 
   Future<int> insertUser(UserModel user) async {
     try {
@@ -260,7 +277,7 @@ class DatabaseHelper {
     try {
       return await insertActivityData(data);
     } on DatabaseException catch (e) {
-       if (e.isUniqueConstraintError()) {
+        if (e.isUniqueConstraintError()) {
         return await updateActivityData(data);
       }
       rethrow;
@@ -297,42 +314,90 @@ class DatabaseHelper {
   }
 
   Future<List<Map<String, dynamic>>> getMeals() async {
-  try {
-    final db = await database;
-    return await db.query('meals');
-  } catch (e) {
-    debugPrint('Erreur lors de la récupération des repas: $e');
-    throw Exception('Erreur lors de la récupération');
+    try {
+      final db = await database;
+      return await db.query('meals');
+    } catch (e) {
+      debugPrint('Erreur lors de la récupération des repas: $e');
+      throw Exception('Erreur lors de la récupération');
+    }
   }
-}
 
-Future<int> deleteMeal(int id) async {
-  try {
+  Future<int> deleteMeal(int id) async {
+    try {
+      final db = await database;
+      return await db.delete(
+        'meals',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      debugPrint('Erreur lors de la suppression du repas: $e');
+      throw Exception('Erreur lors de la suppression');
+    }
+  }
+
+  Future<int> insertMeal(Map<String, dynamic> meal) async {
+    try {
+      final db = await database;
+      return await db.insert(
+        'meals',
+        meal,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      debugPrint('Erreur lors de l\'insertion du repas: $e');
+      throw Exception('Erreur lors de l\'insertion');
+    }
+  }
+
+  // --- START: GOALS METHODS ADDITION ---
+
+  /// Ajoute un nouveau goal à la base de données.
+  Future<int> addGoal(Goal goal) async {
+    final db = await database;
+    return await db.insert('goals', goal.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  /// Récupère tous les goals qui ne sont pas encore complétés.
+  Future<List<Goal>> getActiveGoals() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'goals',
+      where: 'isCompleted = ?',
+      whereArgs: [0], // 0 pour false
+    );
+
+    // Convertit la liste de Maps en une liste de Goals.
+    return List.generate(maps.length, (i) {
+      return Goal.fromMap(maps[i]);
+    });
+  }
+
+  /// Met à jour un goal existant (utile pour le marquer comme complété).
+  Future<int> updateGoal(Goal goal) async {
+    final db = await database;
+    return await db.update(
+      'goals',
+      goal.toMap(),
+      where: 'id = ?',
+      whereArgs: [goal.id],
+    );
+  }
+  
+  /// Supprime un goal de la base de données par son ID.
+  Future<int> deleteGoal(int id) async {
     final db = await database;
     return await db.delete(
-      'meals',
+      'goals',
       where: 'id = ?',
       whereArgs: [id],
     );
-  } catch (e) {
-    debugPrint('Erreur lors de la suppression du repas: $e');
-    throw Exception('Erreur lors de la suppression');
   }
-}
 
-Future<int> insertMeal(Map<String, dynamic> meal) async {
-  try {
-    final db = await database;
-    return await db.insert(
-      'meals',
-      meal,
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  } catch (e) {
-    debugPrint('Erreur lors de l\'insertion du repas: $e');
-    throw Exception('Erreur lors de l\'insertion');
-  }
-}
+  // --- END: GOALS METHODS ADDITION ---
+
 }
 
 extension DatabaseExceptionExtension on DatabaseException {

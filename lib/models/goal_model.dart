@@ -1,38 +1,41 @@
-import 'package:json_annotation/json_annotation.dart';
-part 'goal_model.g.dart';
+// lib/models/goal_model.dart
 
-@JsonSerializable()
-class GoalModel {
-  final int? id;
-  final int userId;
-  final String type;
-  final String description;
-  final double targetValue;
-  final double currentValue;
-  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  final DateTime startDate;
-  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  final DateTime targetDate;
+import 'dart:typed_data';
 
-  GoalModel({
+class Goal {
+  int? id;
+  String name;
+  String description;
+  Uint8List? imageBytes; // Pour stocker l'image en tant que bytes
+  bool isCompleted;
+
+  Goal({
     this.id,
-    required this.userId,
-    required this.type,
+    required this.name,
     required this.description,
-    required this.targetValue,
-    required this.currentValue,
-    required this.startDate,
-    required this.targetDate,
+    this.imageBytes,
+    this.isCompleted = false,
   });
 
-  factory GoalModel.fromJson(Map<String, dynamic> json) =>
-      _$GoalModelFromJson(json);
+  // Méthode pour convertir un Goal en Map (pour la base de données)
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'imageBytes': imageBytes,
+      'isCompleted': isCompleted ? 1 : 0,
+    };
+  }
 
-  Map<String, dynamic> toJson() => _$GoalModelToJson(this);
-  static DateTime _dateTimeFromJson(String date) => DateTime.parse(date);
-  static String _dateTimeToJson(DateTime date) => date.toIso8601String();
-
-  double get progressPercentage {
-    return (currentValue / targetValue) * 100;
+  // Méthode pour convertir une Map en Goal (depuis la base de données)
+  factory Goal.fromMap(Map<String, dynamic> map) {
+    return Goal(
+      id: map['id'],
+      name: map['name'],
+      description: map['description'],
+      imageBytes: map['imageBytes'],
+      isCompleted: map['isCompleted'] == 1,
+    );
   }
 }
